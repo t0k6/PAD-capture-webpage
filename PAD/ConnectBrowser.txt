@@ -1,0 +1,28 @@
+
+FUNCTION ConnectBrowser GLOBAL
+    LABEL ConnectBrowser
+    IF IsNotEmpty(Browser) THEN
+        Display.ShowMessageDialog.ShowMessage Title: $'''確認''' Message: $'''同じブラウザ（同じタブ）で続けますか？''' Icon: Display.Icon.Question Buttons: Display.Buttons.YesNo DefaultButton: Display.DefaultButton.Button1 IsTopMost: True ButtonPressed=> ButtonPressed
+        IF ButtonPressed = $'''No''' THEN
+            SET Browser TO $'''%''%'''
+        END
+    END
+    IF IsEmpty(Browser) THEN
+        Display.ShowMessageDialog.ShowMessage Title: $'''確認''' Message: $'''2秒後にフォアグラウンドウィンドウを操作ブラウザとして取得します。''' Icon: Display.Icon.Question Buttons: Display.Buttons.OKCancel DefaultButton: Display.DefaultButton.Button1 IsTopMost: True ButtonPressed=> ButtonPressed
+        IF ButtonPressed = $'''Cancel''' THEN
+            EXIT FUNCTION
+        END
+    END
+    WAIT 2
+    BLOCK 
+ON BLOCK ERROR all
+
+END
+        WebAutomation.LaunchChrome.AttachToForegroundChrome AttachTimeout: 10 BrowserInstance=> Browser
+    END
+    ERROR => LastError Reset: True
+    IF LastError <> $'''エラーはありません''' THEN
+        Display.ShowMessageDialog.ShowMessage Title: $'''Error''' Message: LastError Icon: Display.Icon.ErrorIcon Buttons: Display.Buttons.OK DefaultButton: Display.DefaultButton.Button1 IsTopMost: True
+        GOTO ConnectBrowser
+    END
+END FUNCTION

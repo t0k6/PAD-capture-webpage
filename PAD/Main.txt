@@ -1,0 +1,33 @@
+
+FUNCTION Main_copy GLOBAL
+    LABEL Start
+    Display.SelectFolder Description: $'''ファイルの保存先を選択してください''' InitialDirectory: SelectedFolder IsTopMost: True SelectedFolder=> SelectedFolder ButtonPressed=> ButtonPressed
+    IF ButtonPressed = $'''Cancel''' THEN
+        GOTO Ending
+    END
+    Display.InputDialog Title: $'''タイトル文字列を入力してください''' Message: $'''末尾にレイアウト識別子等を付加したファイル名で保存します''' DefaultValue: title InputType: Display.InputType.SingleLine IsTopMost: True UserInput=> title ButtonPressed=> ButtonPressed
+    IF ButtonPressed = $'''Cancel''' THEN
+        GOTO Ending
+    END
+    CALL ConnectBrowser
+    IF ButtonPressed = $'''Cancel''' THEN
+        GOTO Ending
+    END
+    UIAutomation.MoveWindow.MoveByInstanceOrHandle WindowInstance: Browser X: 0 Y: 0
+    Workstation.GetScreenResolution MonitorNumber: 1 MonitorWidth=> MonitorWidth MonitorHeight=> MonitorHeight MonitorBitCount=> MonitorBitCount MonitorFrequency=> MonitorFrequency
+    SET height TO MonitorHeight - 100
+    # PC_Layout
+    SET layout TO $'''PC'''
+    SET width TO 1280
+    CALL ScreenCapture
+    # SP_Layout
+    SET layout TO $'''SP'''
+    SET width TO 720
+    CALL ScreenCapture
+    LABEL Ending
+    Display.ShowMessageDialog.ShowMessage Title: $'''RePlay?''' Message: $'''もう一度？''' Icon: Display.Icon.Question Buttons: Display.Buttons.OKCancel DefaultButton: Display.DefaultButton.Button1 IsTopMost: True ButtonPressed=> ButtonPressed
+    IF ButtonPressed = $'''Cancel''' THEN
+        EXIT Code: 0
+    END
+    GOTO Start
+END FUNCTION
